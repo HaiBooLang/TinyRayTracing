@@ -10,7 +10,7 @@
 color ray_color(const ray &r) {
   vec3 unit_direction = unit_vector(r.direction());
   auto t = 0.5 * (unit_direction.y() + 1.0);
-  return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.596, 0.765, 0.475);
+  return (1.0 - t*t) * color(1.0, 1.0, 1.0) + t*t * color(0.596, 0.765, 0.475);
 }
 
 void test() {
