@@ -1,4 +1,5 @@
 #include "color.hpp"
+#include "ray.hpp"
 #include "vec3.hpp"
 #include <Windows.h>
 #include <fstream>
@@ -6,14 +7,33 @@
 #include <ostream>
 
 
+color ray_color(const ray &r) {
+  vec3 unit_direction = unit_vector(r.direction());
+  auto t = 0.5 * (unit_direction.y() + 1.0);
+  return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.596, 0.765, 0.475);
+}
+
 void test() {
 
   // Image
 
   std::ofstream img_out("img.ppm");
 
-  constexpr int image_width = 256;
-  constexpr int image_height = 256;
+  constexpr double aspect_ratio = 16.0 / 9.0;
+  constexpr int image_width = 400;
+  constexpr int image_height = static_cast<int>(image_width / aspect_ratio);
+
+  // Camera
+
+  constexpr double viewport_height = 2.0;
+  constexpr double viewport_width = aspect_ratio * viewport_height;
+  constexpr double focal_length = 1.0;
+
+  const point3 origin{0, 0, 0};
+  const vec3 horizontal{viewport_width, 0, 0};
+  const vec3 vertical{0, viewport_width, 0};
+  const vec3 lower_left_corner =
+      origin - horizontal / 2 - vertical / 2 - vec3(0, 0, focal_length);
 
   // Render
 
@@ -22,11 +42,11 @@ void test() {
   for (int j = image_height - 1; j >= 0; --j) {
     std::cerr << "\nScanlines ramaining: " << j << ' ' << std::flush;
     for (int i = 0; i < image_width; ++i) {
-      auto r = double(i) / (image_width - 1);
-      auto g = double(j) / (image_height - 1);
-      auto b = 0.5;
+      const double u = double(i) / (image_width - 1);
+      const double v = double(j) / (image_height - 1);
+      ray r{origin, lower_left_corner + u * horizontal + v * vertical - origin};
 
-      color pixel_color(r, g, b);
+      color pixel_color = ray_color(r);
       write_color(img_out, pixel_color);
     }
   }
