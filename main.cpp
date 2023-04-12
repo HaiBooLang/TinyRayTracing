@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <fstream>
 #include <iostream>
+#include <ostream>
 
 void test() {
   std::ofstream img("img.ppm");
@@ -11,6 +12,7 @@ void test() {
   img << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
   for (int j = image_height - 1; j >= 0; --j) {
+    std::cerr << "\nScanlines ramaining: " << j << ' ' << std::flush;
     for (int i = 0; i < image_width; ++i) {
       auto r = double(i) / (image_width - 1);
       auto g = double(j) / (image_height - 1);
@@ -23,6 +25,7 @@ void test() {
       img << ir << ' ' << ig << ' ' << ib << '\n';
     }
   }
+  std::cerr << "\nDone\n";
 
   img.close();
 }
@@ -44,5 +47,5 @@ int main() {
     time += (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
   }
 
-  std::cout << "time = " << time / max << std::endl;
+  std::cerr << "time = " << time / max << std::endl;
 }
