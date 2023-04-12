@@ -6,8 +6,18 @@
 #include <iostream>
 #include <ostream>
 
+bool hit_sphere(const point3 &center, const double radius, const ray &r) {
+  vec3 oc = r.origin() - center;
+  const auto a = dot(r.direction(), r.direction());
+  const auto b = 2.0 * dot(oc, r.direction());
+  const auto c = dot(oc, oc) - radius * radius;
+  const auto discriminant = b * b - 4 * a * c;
+  return (discriminant > 0);
+}
 
 color ray_color(const ray &r) {
+  if (hit_sphere(point3(0, 0, -1), 0.5, r))
+    return color(0.5, 0.7, 1.0);
   vec3 unit_direction = unit_vector(r.direction());
   auto t = 0.5 * (unit_direction.y() + 1.0);
   return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.596, 0.765, 0.475);
@@ -31,7 +41,7 @@ void test() {
 
   const point3 origin{0, 0, 0};
   const vec3 horizontal{viewport_width, 0, 0};
-  const vec3 vertical{0, viewport_width, 0};
+  const vec3 vertical{0, viewport_height, 0};
   const vec3 lower_left_corner =
       origin - horizontal / 2 - vertical / 2 - vec3(0, 0, focal_length);
 
@@ -44,7 +54,8 @@ void test() {
     for (int i = 0; i < image_width; ++i) {
       const double u = double(i) / (image_width - 1);
       const double v = double(j) / (image_height - 1);
-      ray r{origin, lower_left_corner + u * horizontal + v * vertical - origin};
+      const ray r{origin,
+                  lower_left_corner + u * horizontal + v * vertical - origin};
 
       color pixel_color = ray_color(r);
       write_color(img_out, pixel_color);
