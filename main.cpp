@@ -36,7 +36,9 @@ void test() {
     hittable_list world;
     for (int i = 9; i >= -9; --i) {
         for (int j = 5; j >= -5; --j) {
-            world.add(make_shared<sphere>(point3(i, j, -2), 0.5));
+            for (int k = -2; k >= -4; --k) {
+                world.add(make_shared<sphere>(point3(i, j, k), 0.5));
+            }
         }
     }
 
