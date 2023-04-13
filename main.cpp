@@ -30,16 +30,15 @@ void test() {
     constexpr double aspect_ratio = 16.0 / 9.0;
     constexpr int image_width = 400;
     constexpr int image_height = static_cast<int>(image_width / aspect_ratio);
-    constexpr int samples_per_pixel = 50;
+    constexpr int samples_per_pixel = 100;
 
     // World
     hittable_list world;
-    world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
-    world.add(make_shared<sphere>(point3(0, -1, -1), 0.5));
-    world.add(make_shared<sphere>(point3(0, 1, -1), 0.5));
-    world.add(make_shared<sphere>(point3(1, 0, -1), 0.5));
-    world.add(make_shared<sphere>(point3(-1, 0, -1), 0.5));
-    
+    for (int i = 9; i >= -9; --i) {
+        for (int j = 5; j >= -5; --j) {
+            world.add(make_shared<sphere>(point3(i, j, -2), 0.5));
+        }
+    }
 
     // Camera
     camera cam;
