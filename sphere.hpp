@@ -20,6 +20,7 @@ public:
 
 bool sphere::hit(const ray &r, double t_min, double t_max,
                  hit_record &rec) const {
+    // t^2 b⋅b + 2tb⋅(A - C) + (A - C)⋅(A - C) - r^2 = 0
     vec3 oc = r.origin() - center;
     const auto a = r.direction().length_squared();
     const auto half_b = dot(oc, r.direction());
@@ -41,7 +42,8 @@ bool sphere::hit(const ray &r, double t_min, double t_max,
     // record
     rec.t = root;
     rec.p = r.at(rec.t);
-    rec.normal = (rec.p - center)/radius;
+    vec3 outward_normal = (rec.p - center) / radius;
+    rec.set_face_normal(r, outward_normal);
 
     return true;
 }
