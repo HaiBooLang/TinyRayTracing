@@ -8,14 +8,14 @@
 
 double hit_sphere(const point3 &center, const double radius, const ray &r) {
     vec3 oc = r.origin() - center;
-    const auto a = dot(r.direction(), r.direction());
-    const auto b = 2.0 * dot(oc, r.direction());
-    const auto c = dot(oc, oc) - radius * radius;
-    const auto discriminant = b * b - 4 * a * c;
-    if(discriminant<0){
+    const auto a = r.direction().length_squared();
+    const auto half_b = dot(oc, r.direction());
+    const auto c = oc.length_squared() - radius * radius;
+    const auto discriminant = half_b * half_b - 4 * a * c;
+    if (discriminant < 0) {
         return -1.0;
-    }else {
-        return (-b-sqrt(discriminant))/(2.0*a);
+    } else {
+        return (-half_b - sqrt(discriminant)) / (a);
     }
 }
 
@@ -23,10 +23,10 @@ color ray_color(const ray &r) {
 
     // sphere
 
-    double t = hit_sphere(point3(0,0,-1), 0.5, r);
-    if(t>0.0){
-        vec3 N = unit_vector(r.at(t)-vec3(0,0,-1));
-        return 0.5*color(N.x()+1,N.y()+1,N.z()+1);
+    double t = hit_sphere(point3(0, 0, -1), 0.5, r);
+    if (t > 0.0) {
+        vec3 N = unit_vector(r.at(t) - vec3(0, 0, -1));
+        return 0.5 * color(N.x() + 1, N.y() + 1, N.z() + 1);
     }
 
     // background
@@ -78,7 +78,7 @@ void test() {
 
     img_out.close();
 }
-                                                
+
 int main() {
 
     LARGE_INTEGER t1, t2, tc;
