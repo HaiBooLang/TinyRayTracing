@@ -18,8 +18,8 @@ public:
     double radius;
 };
 
-bool sphere::hit(const ray &r, double t_min, double t_max,
-                 hit_record &rec) const {
+inline bool sphere::hit(const ray &r, double t_min, double t_max,
+                        hit_record &rec) const {
     // t^2 b⋅b + 2tb⋅(A - C) + (A - C)⋅(A - C) - r^2 = 0
     vec3 oc = r.origin() - center;
     const auto a = r.direction().length_squared();
