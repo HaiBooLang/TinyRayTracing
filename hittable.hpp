@@ -1,11 +1,16 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
-#include "ray.hpp"
+#include "rtweekend.hpp"
+#include <memory>
+
+class material;
 
 struct hit_record {
     point3 p;
     vec3 normal;
+    // Hittables and materials need to know each other
+    std::shared_ptr<material> mat_ptr;
     double t;
     bool front_face;
 
