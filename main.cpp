@@ -50,10 +50,8 @@ void test() {
 
     const auto material_ground = std::make_shared<lambertian>(
         color(44.0 / 255.0, 62.0 / 255.0, 80.0 / 255.0));
-    const auto material_left = make_shared<metal>(
-        color(198.0 / 255.0, 255.0 / 255.0, 221.0 / 255.0), 0.1);
-    const auto material_center = make_shared<lambertian>(
-        color(251.0 / 255.0, 215.0 / 255.0, 134.0 / 255.0));
+    const auto material_left = make_shared<dielectric>(1.1);
+    const auto material_center = make_shared<dielectric>(0.9);
     const auto material_right = make_shared<metal>(
         color(247.0 / 255.0, 121.0 / 255.0, 125.0 / 255.0), 0.9);
 
