@@ -30,7 +30,8 @@ color ray_color(const ray &r, const hittable &world, int depth) {
     // background
     vec3 unit_direction = unit_vector(r.direction());
     const auto t = 0.5 * (unit_direction.y() + 1.0);
-    return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.596, 0.765, 0.475);
+    return (1.0 - t) * color(1.0, 1.0, 1.0) +
+           t * color(189.0 / 255.0, 195.0 / 255.0, 199.0 / 255.0);
 }
 
 void test() {
@@ -39,18 +40,22 @@ void test() {
     std::ofstream img_out("img.ppm");
 
     constexpr double aspect_ratio = 16.0 / 9.0;
-    constexpr int image_width = 400;
+    constexpr int image_width = 800;
     constexpr int image_height = static_cast<int>(image_width / aspect_ratio);
-    constexpr int samples_per_pixel = 50;
+    constexpr int samples_per_pixel = 100;
     constexpr int max_depth = 50;
 
     // World
     hittable_list world;
-    const auto material_ground =
-        std::make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    const auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
-    const auto material_left = make_shared<metal>(color(0.8, 0.8, 0.8));
-    const auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2));
+
+    const auto material_ground = std::make_shared<lambertian>(
+        color(44.0 / 255.0, 62.0 / 255.0, 80.0 / 255.0));
+    const auto material_left = make_shared<metal>(
+        color(198.0 / 255.0, 255.0 / 255.0, 221.0 / 255.0), 0.1);
+    const auto material_center = make_shared<lambertian>(
+        color(251.0 / 255.0, 215.0 / 255.0, 134.0 / 255.0));
+    const auto material_right = make_shared<metal>(
+        color(247.0 / 255.0, 121.0 / 255.0, 125.0 / 255.0), 0.9);
 
     world.add(
         make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));
