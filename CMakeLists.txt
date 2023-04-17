@@ -11,3 +11,9 @@ set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
 set(CMAKE_CXX_STANDARD 17)
+
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(tinyraytracing PUBLIC OpenMP::OpenMP_CXX)
+endif()
