@@ -46,37 +46,17 @@ void test() {
     constexpr int max_depth = 50;
 
     // World
+    auto R = cos(pi / 4);
     hittable_list world;
 
-    const auto material_lambertian_grey = std::make_shared<lambertian>(
-        color(44.0 / 255.0, 62.0 / 255.0, 80.0 / 255.0));
-    const auto material_lambertian_yellow = make_shared<lambertian>(
-        color(251.0 / 255.0, 215.0 / 255.0, 134.0 / 255.0));
-    const auto material_metal_green = make_shared<metal>(
-        color(198.0 / 255.0, 255.0 / 255.0, 221.0 / 255.0), 0.1);
-    const auto material_matel_red = make_shared<metal>(
-        color(247.0 / 255.0, 121.0 / 255.0, 125.0 / 255.0), 0.9);
-    const auto material_dielectric_greater_one = make_shared<dielectric>(1.1);
-    const auto material_dielectric_less_one = make_shared<dielectric>(0.9);
+    auto material_left = make_shared<lambertian>(color(0, 0, 1));
+    auto material_right = make_shared<lambertian>(color(1, 0, 0));
 
-    const auto material_ground = material_lambertian_grey;
-    const auto material_left_outside = material_dielectric_greater_one;
-    const auto material_left_inside = material_dielectric_less_one;
-    const auto material_center = material_lambertian_yellow;
-    const auto material_right = material_metal_green;
-
-    world.add(
-        make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));
-    world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5,
-                                  material_left_outside));
-    world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), -0.4,
-                                  material_left_inside));
-    world.add(
-        make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, material_center));
-    world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
+    world.add(make_shared<sphere>(point3(-R, 0, -1), R, material_left));
+    world.add(make_shared<sphere>(point3(R, 0, -1), R, material_right));
 
     // Camera
-    camera cam;
+    camera cam(90.0, aspect_ratio);
 
     // Render
 
