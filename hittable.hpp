@@ -10,7 +10,7 @@ struct hit_record {
     vec3 normal;
     // Hittables and materials need to know each other
     shared_ptr<material> mat_ptr;
-    double t;
+    float t;
     bool front_face;
 
     inline void set_face_normal(const ray &r, const vec3 &outward_normal) {
@@ -22,7 +22,7 @@ struct hit_record {
 // an “abstract class” for anything a ray might hit
 class hittable {
 public:
-    virtual bool hit(const ray &r, double t_min, double t_max,
+    virtual bool hit(const ray &r, float t_min, float t_max,
                      hit_record &rec) const = 0;
 };
 
