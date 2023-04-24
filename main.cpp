@@ -4,6 +4,7 @@
 #include "color.hpp"
 #include "hittable_list.hpp"
 #include "material.hpp"
+#include "moving_sphere.hpp"
 #include "sphere.hpp"
 #include <Windows.h>
 #include <fstream>
@@ -47,9 +48,10 @@ inline hittable_list random_scene() {
                     // diffuse
                     auto albedo = color::random() * color::random();
                     sphere_material = make_shared<lambertian>(albedo);
-                    world.add(
-                        make_shared<sphere>(center, 0.2, sphere_material));
-                } else if (choose_material < 0.8) {
+                    auto center2 = center + vec3(0, random_float(0, 0.5), 0);
+                    world.add(make_shared<moving_sphere>(
+                        center, center2, 0.0, 1.0, 0.2, sphere_material));
+                } else if (choose_material < 0.9) {
                     // metal
                     auto albedo = color::random(0.5, 1);
                     auto fuzz = random_float(0, 0.5);
@@ -88,7 +90,7 @@ inline color ray_color(const ray &r, const hittable &world, int depth) {
         return color(0, 0, 0);
 
     // world
-    if (world.hit(r, 0.001, infinity, rec)) {
+    if (world.hit(r, 10e-3, infinity, rec)) {
         ray scattered;
         color attenuation;
         if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
@@ -111,8 +113,8 @@ inline void test() {
     constexpr float aspect_ratio = 3.0 / 2.0;
     constexpr int image_width = 1200;
     constexpr int image_height = static_cast<int>(image_width / aspect_ratio);
-    constexpr int samples_per_pixel = 66;
-    constexpr int max_depth = 22;
+    constexpr int samples_per_pixel = 100;
+    constexpr int max_depth = 30;
 
     auto image_data = new float[image_height][image_width][3];
 
@@ -127,7 +129,7 @@ inline void test() {
     const float aperture = 0.1;
 
     Camera camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture,
-                  dist_to_focus);
+                  dist_to_focus, 0.0, 1.0);
 
     // Render
     image_out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -185,5 +187,5 @@ int main() {
                 static_cast<float>(tc.QuadPart);
     }
 
-    std::cerr << "time = " << time / static_cast<float>(max)  << std::endl;
+    std::cerr << "time = " << time / static_cast<float>(max) << std::endl;
 }

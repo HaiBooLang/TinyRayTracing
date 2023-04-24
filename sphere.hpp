@@ -31,7 +31,7 @@ inline bool sphere::hit(const ray &r, float t_min, float t_max,
     const auto c = oc.length_squared() - radius * radius;
 
     const auto discriminant = half_b * half_b - a * c;
-    if (discriminant < 0)
+    if (discriminant < 10e-3)
         return false;
     const auto sqrtd = sqrt(discriminant);
 
