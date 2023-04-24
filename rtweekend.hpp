@@ -13,18 +13,18 @@ using std::sqrt;
 
 // constants
 
-constexpr double infinity = std::numeric_limits<double>::infinity();
-constexpr double pi = 3.1415926535897932385;
+constexpr float infinity = std::numeric_limits<float>::infinity();
+constexpr float pi = 3.1415926535897932385;
 
 // utility functions
 
-inline double degrees_to_radians(double degrees) {
+inline float degrees_to_radians(float degrees) {
     return degrees * pi / 180.0;
 }
 
 // clamp
 
-inline double clamp(double x, double min, double max) {
+inline float clamp(float x, float min, float max) {
     if (x < min)
         return min;
     if (x > max)

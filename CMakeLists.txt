@@ -12,6 +12,11 @@ include(CPack)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# find_package(OpenMP)
+# if(OpenMP_CXX_FOUND)
+#     target_link_libraries(tinyraytracing PUBLIC OpenMP::OpenMP_CXX)
+# endif()
+
 # OpemMp
 if(NOT TARGET OpenMP::OpenMP_CXX)
     find_package(Threads REQUIRED)
