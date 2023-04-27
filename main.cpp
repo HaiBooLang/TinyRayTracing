@@ -64,6 +64,17 @@ inline HittableList random_scene() {
     return world;
 }
 
+inline HittableList two_spheres() {
+    HittableList objects;
+
+    auto checker = make_shared<CheckerTexture>(Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
+
+    objects.add(make_shared<Sphere>(Point3(0, -10, 0), 10, make_shared<Lambertian>(checker)));
+    objects.add(make_shared<Sphere>(Point3(0, 10, 0), 10, make_shared<Lambertian>(checker)));
+
+    return objects;
+}
+
 inline Color ray_color(const Ray &r, const Hittable &world, int depth) {
     HitRecord record;
 
@@ -101,17 +112,38 @@ inline void test() {
     auto image_data = new Vec3[image_height][image_width];
 
     // World
-    auto world = random_scene();
+
+    HittableList world;
+
+    Point3 lookfrom;
+    Point3 lookat;
+    auto vfov = 40.0;
+    auto aperture = 0.0;
+
+    switch (0) {
+    case 1:
+        world = random_scene();
+        lookfrom = Point3(13, 2, 3);
+        lookat = Point3(0, 0, 0);
+        vfov = 20.0;
+        aperture = 0.1;
+        break;
+
+    default:
+    case 2:
+        world = two_spheres();
+        lookfrom = Point3(13, 2, 3);
+        lookat = Point3(0, 0, 0);
+        vfov = 20.0;
+        break;
+    }
 
     // Camera
-    const Point3 look_from(13, 2, 3);
-    const Point3 look_at(0, 0, 0);
-    const Vec3 vertical_up(0, 1, 0);
-    constexpr float distance_to_focus = 10.0;
-    constexpr float aperture = 0.05;
 
-    Camera camera(look_from, look_at, vertical_up, 20, aspect_ratio, aperture, distance_to_focus,
-                  0.0, 1.0);
+    Vec3 vup(0, 1, 0);
+    auto dist_to_focus = 10.0;
+
+    Camera camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
     // Render
 #pragma omp parallel for schedule(dynamic)
