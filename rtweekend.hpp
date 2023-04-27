@@ -37,4 +37,8 @@ inline float clamp(float x, float min, float max) {
 #include "ray.hpp"
 #include "vec3.hpp"
 
+inline int random_int(int min, int max) {
+    // Returns a random integer in [min,max].
+    return static_cast<int>(random_float(min, max + 1));
+}
 #endif

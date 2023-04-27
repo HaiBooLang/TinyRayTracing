@@ -8,8 +8,8 @@ class Camera {
 public:
     Camera(point3 lookfrom, point3 lookat, vec3 vup,
            float vfov, // vertical field-of-view in degrees
-           float aspect_ratio, float aperture, float focus_dist,
-           float _time0 = 0.0, float _time1 = 0.0) {
+           float aspect_ratio, float aperture, float focus_dist, float _time0 = 0.0,
+           float _time1 = 0.0) {
 
         const float theta = degrees_to_radians(vfov);
         const float h = tan(theta / 2);
@@ -23,8 +23,7 @@ public:
         m_origin = lookfrom;
         m_horizontal = focus_dist * viewport_width * u;
         m_vertical = focus_dist * viewport_height * v;
-        m_lower_left_corner =
-            m_origin - m_horizontal / 2 - m_vertical / 2 - focus_dist * w;
+        m_lower_left_corner = m_origin - m_horizontal / 2 - m_vertical / 2 - focus_dist * w;
 
         lens_radius = aperture / 2;
         time0 = _time0;
@@ -35,8 +34,7 @@ public:
         vec3 offset = u * rd.x() + v * rd.y();
 
         return ray(m_origin + offset,
-                   m_lower_left_corner + s * m_horizontal + t * m_vertical -
-                       m_origin - offset,
+                   m_lower_left_corner + s * m_horizontal + t * m_vertical - m_origin - offset,
                    random_float(time0, time1));
     }
 

@@ -2,11 +2,9 @@
 #define COLOR_H
 
 #include "rtweekend.hpp"
-#include <cmath>
 #include <ostream>
 
-inline void write_color(std::ostream &out, color pixel_color,
-                        int samples_per_pixel) {
+inline void write_color(std::ostream &image_out, color &&pixel_color, int samples_per_pixel) {
     float r = pixel_color.x();
     float g = pixel_color.y();
     float b = pixel_color.z();
@@ -18,9 +16,9 @@ inline void write_color(std::ostream &out, color pixel_color,
     b = sqrt(scale * b);
 
     // Write the translated [0,255] value of each color component
-    out << static_cast<int>(255.999 * clamp(r, 0.0, 0.999)) << ' '
-        << static_cast<int>(255.999 * clamp(g, 0.0, 0.999)) << ' '
-        << static_cast<int>(255.999 * clamp(b, 0.0, 0.999)) << '\n';
+    image_out << static_cast<unsigned short>(255.999 * clamp(r, 0.0, 0.999)) << ' '
+              << static_cast<unsigned short>(255.999 * clamp(g, 0.0, 0.999)) << ' '
+              << static_cast<unsigned short>(255.999 * clamp(b, 0.0, 0.999)) << '\n';
 }
 
 #endif
