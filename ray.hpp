@@ -3,32 +3,32 @@
 
 #include "vec3.hpp"
 
-class ray {
+class Ray {
 public:
-    ray() {
+    Ray() {
     }
-    ray(const point3 &origin, const vec3 &direction, float time = 0.0)
-        : orig(origin), dir(direction), tm(time) {
+    Ray(const Point3 &origin, const Vec3 &direction, float time = 0.0)
+        : origin_(origin), direction_(direction), time_(time) {
     }
 
-    point3 origin() const {
-        return orig;
+    Point3 origin() const {
+        return origin_;
     }
-    vec3 direction() const {
-        return dir;
+    Vec3 direction() const {
+        return direction_;
     }
     float time() const {
-        return tm;
+        return time_;
     }
 
-    point3 at(float t) const {
-        return orig + t * dir;
+    Point3 at(const float t) const {
+        return origin_ + t * direction_;
     }
 
 public:
-    point3 orig;
-    vec3 dir;
-    float tm;
+    Point3 origin_;
+    Vec3 direction_;
+    float time_;
 };
 
 #endif

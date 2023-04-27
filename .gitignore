@@ -2,4 +2,6 @@ build
 
 .cache
 
+.vs
+
 vscode

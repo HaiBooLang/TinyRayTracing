@@ -5,37 +5,52 @@
 #include "material.hpp"
 #include "vec3.hpp"
 
-class material;
+class Material;
 
-class sphere : public hittable {
+class Sphere : public Hittable {
 public:
-    sphere() {
-    }
-    sphere(point3 cen, float r, shared_ptr<material> m) : center(cen), radius(r), mat_ptr(m){};
+    Sphere() {}
+    Sphere(Point3 center, float radius, shared_ptr<Material> material_pointer)
+        : center_(center), radius_(radius), material_pointer_(material_pointer){};
 
-    virtual bool hit(const ray &r, float t_min, float t_max, hit_record &rec) const override;
+    virtual bool hit(const Ray &r, float t_min, float t_max, HitRecord &rec) const override;
     virtual bool bounding_box(float time0, float time1, aabb &output_box) const override;
 
+private:
+    static void get_sphere_uv(const Point3 &point, float &u, float &v) {
+        // p: a given point on the sphere of radius one, centered at the origin.
+        // u: returned value [0,1] of angle around the Y axis from X=-1.
+        // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+        //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+        //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+        //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+        const float theta = acos(-point.y());
+        const float phi = std::atan2(-point.z(), point.x()) + PI;
+
+        u = phi / (2 * PI);
+        v = theta / PI;
+    }
+
 public:
-    point3 center;
-    float radius;
-    shared_ptr<material> mat_ptr;
+    Point3 center_;
+    float radius_;
+    shared_ptr<Material> material_pointer_;
 };
 
-inline bool sphere::hit(const ray &r, float t_min, float t_max, hit_record &rec) const {
+inline bool Sphere::hit(const Ray &ray, float t_min, float t_max, HitRecord &record) const {
     // t^2 b⋅b + 2tb⋅(A - C) + (A - C)⋅(A - C) - r^2 = 0
-    vec3 oc = r.origin() - center;
-    const auto a = r.direction().length_squared();
-    const auto half_b = dot(oc, r.direction());
-    const auto c = oc.length_squared() - radius * radius;
+    Vec3 oc = ray.origin() - center_;
+    const float a = ray.direction().length_squared();
+    const float half_b = dot(oc, ray.direction());
+    const float c = oc.length_squared() - radius_ * radius_;
 
-    const auto discriminant = half_b * half_b - a * c;
+    const float discriminant = half_b * half_b - a * c;
     if (discriminant < 10e-3)
         return false;
-    const auto sqrtd = sqrt(discriminant);
+    const float sqrtd = sqrt(discriminant);
 
     // Find the nearest root that lies in the acceptable range.
-    auto root = (-half_b - sqrtd) / a;
+    float root = (-half_b - sqrtd) / a;
     if (root < t_min || t_max < root) {
         root = (-half_b + sqrtd) / a;
         if (root < t_min || t_max < root)
@@ -43,17 +58,19 @@ inline bool sphere::hit(const ray &r, float t_min, float t_max, hit_record &rec)
     }
 
     // record
-    rec.t = root;
-    rec.p = r.at(rec.t);
-    vec3 outward_normal = (rec.p - center) / radius;
-    rec.set_face_normal(r, outward_normal);
-    rec.mat_ptr = mat_ptr;
+    record.t = root;
+    record.p = ray.at(record.t);
+    Vec3 outward_normal = (record.p - center_) / radius_;
+    record.set_face_normal(ray, outward_normal);
+    get_sphere_uv(outward_normal, record.u, record.v);
+    record.material_pointer = material_pointer_;
 
     return true;
 }
 
-inline bool sphere::bounding_box(float time0, float time1, aabb &output_box) const {
-    output_box = aabb(center - vec3(radius, radius, radius), center + vec3(radius, radius, radius));
+inline bool Sphere::bounding_box(float time0, float time1, aabb &output_box) const {
+    output_box =
+        aabb(center_ - Vec3(radius_, radius_, radius_), center_ + Vec3(radius_, radius_, radius_));
     return true;
 }
 

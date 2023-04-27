@@ -6,10 +6,10 @@
 // implements a simple camera using the axis-aligned camera
 class Camera {
 public:
-    Camera(point3 lookfrom, point3 lookat, vec3 vup,
+    Camera(Point3 lookfrom, Point3 lookat, Vec3 vertical_up,
            float vfov, // vertical field-of-view in degrees
-           float aspect_ratio, float aperture, float focus_dist, float _time0 = 0.0,
-           float _time1 = 0.0) {
+           float aspect_ratio, float aperture, float focus_dist, float time0 = 0.0,
+           float time1 = 0.0) {
 
         const float theta = degrees_to_radians(vfov);
         const float h = tan(theta / 2);
@@ -17,34 +17,34 @@ public:
         const float viewport_width = aspect_ratio * viewport_height;
 
         w = unit_vector(lookfrom - lookat);
-        u = unit_vector(cross(vup, w));
+        u = unit_vector(cross(vertical_up, w));
         v = cross(w, u);
 
-        m_origin = lookfrom;
-        m_horizontal = focus_dist * viewport_width * u;
-        m_vertical = focus_dist * viewport_height * v;
-        m_lower_left_corner = m_origin - m_horizontal / 2 - m_vertical / 2 - focus_dist * w;
+        origin_ = lookfrom;
+        horizontal_ = focus_dist * viewport_width * u;
+        vertical_ = focus_dist * viewport_height * v;
+        lower_left_corner_ = origin_ - horizontal_ / 2 - vertical_ / 2 - focus_dist * w;
 
-        lens_radius = aperture / 2;
-        time0 = _time0;
-        time1 = _time1;
+        lens_radius_ = aperture / 2;
+        time0_ = time0;
+        time1_ = time1;
     }
-    ray get_ray(float s, float t) const {
-        vec3 rd = lens_radius * random_in_unit_disk();
-        vec3 offset = u * rd.x() + v * rd.y();
+    Ray get_ray(float s, float t) const {
+        Vec3 rd = lens_radius_ * random_in_unit_disk();
+        Vec3 offset = u * rd.x() + v * rd.y();
 
-        return ray(m_origin + offset,
-                   m_lower_left_corner + s * m_horizontal + t * m_vertical - m_origin - offset,
-                   random_float(time0, time1));
+        return Ray(origin_ + offset,
+                   lower_left_corner_ + s * horizontal_ + t * vertical_ - origin_ - offset,
+                   random_float(time0_, time1_));
     }
 
 private:
-    point3 m_origin;
-    point3 m_lower_left_corner;
-    vec3 m_horizontal;
-    vec3 m_vertical;
-    vec3 u, v, w;
-    float lens_radius;
-    float time0, time1; // shutter open/close times
+    Point3 origin_;
+    Point3 lower_left_corner_;
+    Vec3 horizontal_;
+    Vec3 vertical_;
+    Vec3 u, v, w;
+    float lens_radius_;
+    float time0_, time1_; // shutter open/close times
 };
 #endif

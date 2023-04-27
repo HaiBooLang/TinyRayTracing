@@ -1,35 +1,35 @@
-#ifndef HITTABLE_LIST_H
-#define HITTABLE_LIST_H
+#ifndef HittableList_H
+#define HittableList_H
 
 #include "aabb.hpp"
 #include "hittable.hpp"
 #include <vector>
 
-class hittable_list : public hittable {
+class HittableList : public Hittable {
 public:
-    hittable_list() {
+    HittableList() {
     }
-    hittable_list(std::shared_ptr<hittable> object) {
+    HittableList(std::shared_ptr<Hittable> object) {
         add(object);
     }
 
     void clear() {
         objects.clear();
     }
-    void add(std::shared_ptr<hittable> object) {
+    void add(std::shared_ptr<Hittable> object) {
         objects.push_back(object);
     }
 
-    virtual bool hit(const ray &r, float t_min, float t_max, hit_record &rec) const override;
+    virtual bool hit(const Ray &r, float t_min, float t_max, HitRecord &rec) const override;
 
     virtual bool bounding_box(float time0, float time1, aabb &output_box) const override;
 
 public:
-    std::vector<std::shared_ptr<hittable>> objects;
+    std::vector<std::shared_ptr<Hittable>> objects;
 };
 
-inline bool hittable_list::hit(const ray &r, float t_min, float t_max, hit_record &rec) const {
-    hit_record temp_rec;
+inline bool HittableList::hit(const Ray &r, float t_min, float t_max, HitRecord &rec) const {
+    HitRecord temp_rec;
     bool hit_anything = false;
     // z-buffer
     auto closest_so_far = t_max;
@@ -45,7 +45,7 @@ inline bool hittable_list::hit(const ray &r, float t_min, float t_max, hit_recor
     return hit_anything;
 }
 
-inline bool hittable_list::bounding_box(float time0, float time1, aabb &output_box) const {
+inline bool HittableList::bounding_box(float time0, float time1, aabb &output_box) const {
     if (objects.empty())
         return false;
 

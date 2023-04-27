@@ -3,87 +3,87 @@
 
 #include "hittable.hpp"
 #include "rtweekend.hpp"
+#include "texture.hpp"
 
-struct hit_record;
+struct HitRecord;
 
 // an abstract material class that encapsulates behavior
 // 1. Produce a scattered ray (or say it absorbed the incident ray)
 // 2. If scattered, say how much the ray should be attenuated
-class material {
+class Material {
 public:
-    virtual bool scatter(const ray &r_in, const hit_record &rec, color &attenuation,
-                         ray &scattered) const = 0;
+    virtual bool scatter(const Ray &r_in, const HitRecord &rec, Color &attenuation,
+                         Ray &scattered) const = 0;
 };
 
-class lambertian : public material {
+class Lambertian : public Material {
 public:
-    lambertian(const color &a) : albedo(a) {
-    }
-
-    virtual bool scatter(const ray &r_in, const hit_record &rec, color &attenuation,
-                         ray &scattered) const override {
+    explicit Lambertian(const Color &albedo) : albedo_(make_shared<SolidColor>(albedo)) {}
+    explicit Lambertian(shared_ptr<Texture> a) : albedo_(a) {}
+    
+    virtual bool scatter(const Ray &r_in, const HitRecord &rec, Color &attenuation,
+                         Ray &scattered) const override {
         auto scatter_direction = rec.normal + random_unit_vector();
 
         // Catch degenerate scatter direction
         if (scatter_direction.near_zero())
             scatter_direction = rec.normal;
 
-        scattered = ray(rec.p, scatter_direction, r_in.time());
-        attenuation = albedo;
+        scattered = Ray(rec.p, scatter_direction, r_in.time());
+        attenuation = albedo_->value(rec.u, rec.v, rec.p);
         return true;
     }
 
 public:
-    color albedo;
+    shared_ptr<Texture> albedo_;
 };
 
-class metal : public material {
+class Metal : public Material {
 public:
-    metal(const color &a, float f) : albedo(a), fuzz(f < 1 ? f : 1) {
+    Metal(const Color &albedo, const float fuzz) : albedo_(albedo), fuzz_(fuzz < 1 ? fuzz : 1) {}
+
+    virtual bool scatter(const Ray &ray_in, const HitRecord &record, Color &attenuation,
+                         Ray &scattered) const override {
+        const Vec3 reflected = reflect(unit_vector(ray_in.direction()), record.normal);
+        scattered = Ray(record.p, reflected + fuzz_ * random_in_unit_shpere(), ray_in.time());
+        attenuation = albedo_;
+        return (dot(scattered.direction(), record.normal) > 0);
     }
 
-    virtual bool scatter(const ray &r_in, const hit_record &rec, color &attenuation,
-                         ray &scattered) const override {
-        const vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-        scattered = ray(rec.p, reflected + fuzz * random_in_unit_shpere(), r_in.time());
-        attenuation = albedo;
-        return (dot(scattered.direction(), rec.normal) > 0);
-    }
-
 public:
-    color albedo;
-    float fuzz;
+    Color albedo_;
+    float fuzz_;
 };
 
-class dielectric : public material {
+class Dielectric : public Material {
 public:
-    dielectric(float index_of_refraction) : ir(index_of_refraction) {
-    }
+    Dielectric(float refraction_index) : refraction_index_(refraction_index) {}
 
-    virtual bool scatter(const ray &r_in, const hit_record &rec, color &attenuation,
-                         ray &scattered) const override {
-        attenuation = color(1.0, 1.0, 1.0);
-        const float refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
+    virtual bool scatter(const Ray &ray_in, const HitRecord &record, Color &attenuation,
+                         Ray &scattered) const override {
+        attenuation = Color(1.0, 1.0, 1.0);
+        const float refraction_ratio =
+            record.front_face ? (1.0 / refraction_index_) : refraction_index_;
 
-        const vec3 unit_direction = unit_vector(r_in.direction());
-        const float cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
+        const Vec3 unit_direction = unit_vector(ray_in.direction());
+        const float cos_theta = fmin(dot(-unit_direction, record.normal), 1.0);
         const float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
 
         const bool cannot_refract = refraction_ratio * sin_theta > 1.0;
-        vec3 direction;
+        Vec3 direction;
 
         if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_float())
-            direction = reflect(unit_direction, rec.normal);
+            direction = reflect(unit_direction, record.normal);
         else
-            direction = refract(unit_direction, rec.normal, refraction_ratio);
+            direction = refract(unit_direction, record.normal, refraction_ratio);
 
-        scattered = ray(rec.p, direction, r_in.time());
+        scattered = Ray(record.p, direction, ray_in.time());
 
         return true;
     }
 
 public:
-    float ir; // Index of Refraction
+    float refraction_index_; // Index of Refraction
 
 private:
     static float reflectance(float cosine, float ref_idx) {

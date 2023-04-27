@@ -4,7 +4,7 @@
 #include "rtweekend.hpp"
 #include <ostream>
 
-inline void write_color(std::ostream &image_out, color &&pixel_color, int samples_per_pixel) {
+inline void write_color(std::ostream &image_out, Color &&pixel_color, int samples_per_pixel) {
     float r = pixel_color.x();
     float g = pixel_color.y();
     float b = pixel_color.z();
