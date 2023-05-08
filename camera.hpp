@@ -6,21 +6,21 @@
 // implements a simple camera using the axis-aligned camera
 class Camera {
 public:
-    Camera(Point3 lookfrom, Point3 lookat, Vec3 vertical_up,
-           float vfov, // vertical field-of-view in degrees
+    Camera(Point3 look_from, Point3 look_at, Vec3 vertical_up,
+           float vertical_view_field , // vertical field-of-view in degrees
            float aspect_ratio, float aperture, float focus_dist, float time0 = 0.0,
            float time1 = 0.0) {
 
-        const float theta = degrees_to_radians(vfov);
+        const float theta = degrees_to_radians(vertical_view_field );
         const float h = tan(theta / 2);
         const float viewport_height = 2.0 * h;
         const float viewport_width = aspect_ratio * viewport_height;
 
-        w = unit_vector(lookfrom - lookat);
+        w = unit_vector(look_from - look_at);
         u = unit_vector(cross(vertical_up, w));
         v = cross(w, u);
 
-        origin_ = lookfrom;
+        origin_ = look_from;
         horizontal_ = focus_dist * viewport_width * u;
         vertical_ = focus_dist * viewport_height * v;
         lower_left_corner_ = origin_ - horizontal_ / 2 - vertical_ / 2 - focus_dist * w;

@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <fstream>
 #include <iomanip>
+#include <memory>
 #include <ostream>
 #include <utility>
 
@@ -13,6 +14,17 @@
 #include "sphere.hpp"
 
 class Material;
+
+inline HittableList two_perlin_spheres() {
+    HittableList objects;
+
+    auto perlin_texture = make_shared<NoiseTexture>();
+    objects.add(
+        make_shared<Sphere>(Point3(0, -1000, 0), 1000, make_shared<Lambertian>(perlin_texture)));
+    objects.add(make_shared<Sphere>(Point3(0, 2, 0), 2, make_shared<Lambertian>(perlin_texture)));
+
+    return objects;
+}
 
 inline HittableList random_scene() {
     HittableList world;
@@ -106,8 +118,8 @@ inline void test() {
     constexpr float aspect_ratio = 16.0 / 9.0;
     constexpr int image_width = 1200;
     constexpr int image_height = static_cast<int>(image_width / aspect_ratio);
-    constexpr int samples_per_pixel = 66;
-    constexpr int samples_max_depth = 30;
+    constexpr int samples_per_pixel = 100;
+    constexpr int samples_max_depth = 50;
 
     auto image_data = new Vec3[image_height][image_width];
 
@@ -115,38 +127,45 @@ inline void test() {
 
     HittableList world;
 
-    Point3 lookfrom;
-    Point3 lookat;
-    auto vfov = 40.0;
+    Point3 look_from;
+    Point3 look_at;
+    auto vertical_view_field = 40.0;
     auto aperture = 0.0;
 
     switch (0) {
     case 1:
         world = random_scene();
-        lookfrom = Point3(13, 2, 3);
-        lookat = Point3(0, 0, 0);
-        vfov = 20.0;
+        look_from = Point3(13, 2, 3);
+        look_at = Point3(0, 0, 0);
+        vertical_view_field = 20.0;
         aperture = 0.1;
         break;
 
-    default:
     case 2:
         world = two_spheres();
-        lookfrom = Point3(13, 2, 3);
-        lookat = Point3(0, 0, 0);
-        vfov = 20.0;
+        look_from = Point3(13, 2, 3);
+        look_at = Point3(0, 0, 0);
+        vertical_view_field = 20.0;
+        break;
+    default:
+    case 3:
+        world = two_perlin_spheres();
+        look_from = Point3(13, 2, 3);
+        look_at = Point3(0, 0, 0);
+        vertical_view_field = 20.0;
         break;
     }
 
     // Camera
 
-    Vec3 vup(0, 1, 0);
-    auto dist_to_focus = 10.0;
+    const Vec3 vertical_up(0, 1, 0);
+    constexpr float distance_to_focus = 10.0;
 
-    Camera camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    Camera camera(look_from, look_at, vertical_up, vertical_view_field, aspect_ratio, aperture,
+                  distance_to_focus, 0.0, 1.0);
 
     // Render
-#pragma omp parallel for schedule(dynamic)
+    // #pragma omp parallel for schedule(dynamic)
     for (int y = image_height - 1; y >= 0; --y) {
         std::cerr << "\nScanlines ramaining: " << y << ' ' << std::flush;
 

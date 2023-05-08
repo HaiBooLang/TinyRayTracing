@@ -14,7 +14,7 @@ public:
     Point3 aabb_min() const { return aabb_minimum; }
     Point3 aabb_max() const { return aabb_maximum; }
 
-    bool hit(const Ray &r, double t_min, double t_max) const {
+    bool hit(const Ray &r, float t_min, float t_max) const {
         for (int a = 0; a < 3; a++) {
             auto t0 = fmin((aabb_minimum[a] - r.origin()[a]) / r.direction()[a],
                            (aabb_maximum[a] - r.origin()[a]) / r.direction()[a]);
