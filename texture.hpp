@@ -48,8 +48,8 @@ class NoiseTexture : public Texture {
 public:
     NoiseTexture() {}
 
-    virtual Color value(float _u, float _v, const Point3 &_p) const override {
-        return Color(1, 1, 1) * noise.noise(_p);
+    virtual Color value(float u, float v, const Vec3 &p) const override {
+        return Color(1, 1, 1) * noise.noise(p);
     }
 
 public:
