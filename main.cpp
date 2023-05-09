@@ -18,7 +18,7 @@ class Material;
 inline HittableList two_perlin_spheres() {
     HittableList objects;
 
-    auto perlin_texture = make_shared<NoiseTexture>();
+    auto perlin_texture = make_shared<NoiseTexture>(random_int(1, 100));
     objects.add(
         make_shared<Sphere>(Point3(0, -1000, 0), 1000, make_shared<Lambertian>(perlin_texture)));
     objects.add(make_shared<Sphere>(Point3(0, 2, 0), 2, make_shared<Lambertian>(perlin_texture)));
