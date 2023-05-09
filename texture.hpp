@@ -50,7 +50,7 @@ public:
     NoiseTexture(float _scale) : scale(_scale) {}
 
     virtual Color value(float u, float v, const Vec3 &p) const override {
-        return Color(1, 1, 1) * noise.noise(scale * p);
+        return Color(1, 1, 1) * 0.5 * (1.0 + noise.noise(scale * p));
     }
 
 public:
