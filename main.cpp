@@ -165,7 +165,7 @@ inline void test() {
                   distance_to_focus, 0.0, 1.0);
 
     // Render
-    // #pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
     for (int y = image_height - 1; y >= 0; --y) {
         std::cerr << "\nScanlines ramaining: " << y << ' ' << std::flush;
 
