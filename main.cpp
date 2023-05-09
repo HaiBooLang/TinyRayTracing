@@ -15,6 +15,21 @@
 
 class Material;
 
+inline HittableList mars() {
+    auto mars_texture = std::make_shared<ImageTexture>("MarsTopoMap.jpg");
+    auto mars_surface = make_shared<Lambertian>(mars_texture);
+    auto globe = make_shared<Sphere>(Point3(0, 0, 0), 2, mars_surface);
+
+    return HittableList(globe);
+}
+
+inline HittableList earth() {
+    auto earth_texture = std::make_shared<ImageTexture>("earthmap.jpg");
+    auto earth_surface = make_shared<Lambertian>(earth_texture);
+    auto globe = make_shared<Sphere>(Point3(0, 0, 0), 2, earth_surface);
+
+    return HittableList(globe);
+}
 inline HittableList two_perlin_spheres() {
     HittableList objects;
 
@@ -147,9 +162,23 @@ inline void test() {
         look_at = Point3(0, 0, 0);
         vertical_view_field = 20.0;
         break;
-    default:
+
     case 3:
         world = two_perlin_spheres();
+        look_from = Point3(13, 2, 3);
+        look_at = Point3(0, 0, 0);
+        vertical_view_field = 20.0;
+        break;
+
+    case 4:
+        world = mars();
+        look_from = Point3(13, 2, 3);
+        look_at = Point3(0, 0, 0);
+        vertical_view_field = 20.0;
+        break;
+    default:
+    case 5:
+        world = earth();
         look_from = Point3(13, 2, 3);
         look_at = Point3(0, 0, 0);
         vertical_view_field = 20.0;
@@ -164,7 +193,7 @@ inline void test() {
     Camera camera(look_from, look_at, vertical_up, vertical_view_field, aspect_ratio, aperture,
                   distance_to_focus, 0.0, 1.0);
 
-    // Render
+// Render
 #pragma omp parallel for schedule(dynamic)
     for (int y = image_height - 1; y >= 0; --y) {
         std::cerr << "\nScanlines ramaining: " << y << ' ' << std::flush;
