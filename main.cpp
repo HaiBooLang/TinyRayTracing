@@ -5,6 +5,7 @@
 #include <ostream>
 #include <utility>
 
+#include "aarectangle.hpp"
 #include "camera.hpp"
 #include "color.hpp"
 #include "hittable_list.hpp"
@@ -13,7 +14,21 @@
 #include "rtweekend.hpp"
 #include "sphere.hpp"
 
+
 class Material;
+
+HittableList simple_light() {
+    HittableList objects;
+
+    auto pertext = make_shared<NoiseTexture>(4);
+    objects.add(make_shared<Sphere>(Point3(0, -1000, 0), 1000, make_shared<Lambertian>(pertext)));
+    objects.add(make_shared<Sphere>(Point3(0, 2, 0), 2, make_shared<Lambertian>(pertext)));
+
+    auto difflight = make_shared<DiffuseLight>(Color(4, 4, 4));
+    objects.add(make_shared<XYRectangle>(3, 5, 1, 3, -2, difflight));
+
+    return objects;
+}
 
 inline HittableList mars() {
     auto mars_texture = std::make_shared<ImageTexture>("MarsTopoMap.jpg");
@@ -133,7 +148,7 @@ inline void test() {
     constexpr float aspect_ratio = 16.0 / 9.0;
     constexpr int image_width = 1200;
     constexpr int image_height = static_cast<int>(image_width / aspect_ratio);
-    constexpr int samples_per_pixel = 100;
+    constexpr int samples_per_pixel = 400;
     constexpr int samples_max_depth = 50;
 
     auto image_data = new Vec3[image_height][image_width];
@@ -190,8 +205,13 @@ inline void test() {
         vertical_view_field = 20.0;
         break;
     default:
-        background = Color(0, 0, 0);
-        break;
+    case 6:
+            world = simple_light();
+            background = Color(0,0,0);
+            look_from = Point3(26,3,6);
+            look_at = Point3(0,2,0);
+            vertical_view_field = 20.0;
+            break;
     }
 
     // Camera
