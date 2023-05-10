@@ -4,6 +4,7 @@
 #include "hittable.hpp"
 #include "rtweekend.hpp"
 #include "texture.hpp"
+#include <memory>
 
 struct HitRecord;
 
@@ -12,30 +13,32 @@ struct HitRecord;
 // 2. If scattered, say how much the ray should be attenuated
 class Material {
 public:
+    virtual Color emitted(float u, float v, const Point3 &p) const { return Color(0, 0, 0); }
+
     virtual bool scatter(const Ray &r_in, const HitRecord &rec, Color &attenuation,
                          Ray &scattered) const = 0;
 };
 
 class Lambertian : public Material {
 public:
-    explicit Lambertian(const Color &albedo) : albedo_(make_shared<SolidColor>(albedo)) {}
-    explicit Lambertian(shared_ptr<Texture> a) : albedo_(a) {}
-    
-    virtual bool scatter(const Ray &r_in, const HitRecord &rec, Color &attenuation,
-                         Ray &scattered) const override {
-        auto scatter_direction = rec.normal + random_unit_vector();
+    explicit Lambertian(const Color &_albedo) : albedo(make_shared<SolidColor>(_albedo)) {}
+    explicit Lambertian(shared_ptr<Texture> a) : albedo(a) {}
+
+    virtual bool scatter(const Ray &_r_in, const HitRecord &_rec, Color &_attenuation,
+                         Ray &_scattered) const override {
+        auto scatter_direction = _rec.normal + random_unit_vector();
 
         // Catch degenerate scatter direction
         if (scatter_direction.near_zero())
-            scatter_direction = rec.normal;
+            scatter_direction = _rec.normal;
 
-        scattered = Ray(rec.p, scatter_direction, r_in.time());
-        attenuation = albedo_->value(rec.u, rec.v, rec.p);
+        _scattered = Ray(_rec.p, scatter_direction, _r_in.time());
+        _attenuation = albedo->value(_rec.u, _rec.v, _rec.p);
         return true;
     }
 
 public:
-    shared_ptr<Texture> albedo_;
+    shared_ptr<Texture> albedo;
 };
 
 class Metal : public Material {
@@ -92,6 +95,24 @@ private:
         r0 = r0 * r0;
         return r0 + (1 - r0) * pow((1 - cosine), 5);
     }
+};
+
+class DiffuseLight : public Material {
+public:
+    DiffuseLight(shared_ptr<Texture> _emit) : emit(_emit) {}
+    DiffuseLight(Color _color) : emit(make_shared<SolidColor>(_color)) {}
+
+    virtual bool scatter(const Ray &r_in, const HitRecord &rec, Color &attenuation,
+                         Ray &scattered) const override {
+        return false;
+    }
+
+    virtual Color emitted(float u, float v, const Point3 &p) const override {
+        return emit->value(u, v, p);
+    }
+
+public:
+    shared_ptr<Texture> emit;
 };
 
 #endif
