@@ -14,8 +14,25 @@
 #include "rtweekend.hpp"
 #include "sphere.hpp"
 
-
 class Material;
+
+HittableList cornell_box() {
+    HittableList objects;
+
+    auto red = make_shared<Lambertian>(Color(.65, .05, .05));
+    auto white = make_shared<Lambertian>(Color(.73, .73, .73));
+    auto green = make_shared<Lambertian>(Color(.12, .45, .15));
+    auto light = make_shared<DiffuseLight>(Color(15, 15, 15));
+
+    objects.add(make_shared<YZRectangle>(0, 555, 0, 555, 555, green));
+    objects.add(make_shared<YZRectangle>(0, 555, 0, 555, 0, red));
+    objects.add(make_shared<XZRectangle>(213, 343, 227, 332, 554, light));
+    objects.add(make_shared<XZRectangle>(0, 555, 0, 555, 0, white));
+    objects.add(make_shared<XZRectangle>(0, 555, 0, 555, 555, white));
+    objects.add(make_shared<XYRectangle>(0, 555, 0, 555, 555, white));
+
+    return objects;
+}
 
 HittableList simple_light() {
     HittableList objects;
@@ -145,11 +162,11 @@ inline void test() {
     // Image
     std::ofstream image_out("img.ppm");
 
-    constexpr float aspect_ratio = 16.0 / 9.0;
-    constexpr int image_width = 1200;
-    constexpr int image_height = static_cast<int>(image_width / aspect_ratio);
-    constexpr int samples_per_pixel = 400;
-    constexpr int samples_max_depth = 50;
+    float aspect_ratio = 1.0;
+    constexpr int image_width = 400;
+    int image_height = static_cast<int>(image_width / aspect_ratio);
+    int samples_per_pixel = 1200;
+    int samples_max_depth = 50;
 
     auto image_data = new Vec3[image_height][image_width];
 
@@ -204,14 +221,24 @@ inline void test() {
         look_at = Point3(0, 0, 0);
         vertical_view_field = 20.0;
         break;
-    default:
+
     case 6:
-            world = simple_light();
-            background = Color(0,0,0);
-            look_from = Point3(26,3,6);
-            look_at = Point3(0,2,0);
-            vertical_view_field = 20.0;
-            break;
+        world = simple_light();
+        background = Color(0, 0, 0);
+        look_from = Point3(26, 3, 6);
+        look_at = Point3(0, 2, 0);
+        vertical_view_field = 20.0;
+        break;
+
+    default:
+    case 7:
+        world = cornell_box();
+        aspect_ratio = 1.0;
+        background = Color(0, 0, 0);
+        look_from = Point3(278, 278, -800);
+        look_at = Point3(278, 278, 0);
+        vertical_view_field = 40.0;
+        break;
     }
 
     // Camera
