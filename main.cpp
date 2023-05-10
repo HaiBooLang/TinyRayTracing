@@ -102,27 +102,27 @@ inline HittableList two_spheres() {
     return objects;
 }
 
-inline Color ray_color(const Ray &r, const Hittable &world, int depth) {
+// Color(189.0 / 255.0, 195.0 / 255.0, 199.0 / 255.0)
+
+inline Color ray_color(const Ray &r, const Color &background, const Hittable &world, int depth) {
     HitRecord record;
 
     // If we've exceeded the ray bounce limit, no more light is gathered
     if (depth <= 0)
         return Color(0, 0, 0);
 
-    // world
-    if (world.hit(r, 10e-3, infinity, record)) {
-        Ray scattered;
-        Color attenuation;
-        if (record.material_pointer->scatter(r, record, attenuation, scattered))
-            return attenuation * ray_color(scattered, world, depth - 1);
-        return Color(0, 0, 0);
-    }
+    // If the ray hits nothing, return the background color.
+    if (!world.hit(r, 10e-3, infinity, record))
+        return background;
 
-    // background
-    Vec3 unit_direction = unit_vector(r.direction());
-    const auto t = 0.5 * (unit_direction.y() + 1.0);
-    return (1.0 - t) * Color(1.0, 1.0, 1.0) +
-           t * Color(189.0 / 255.0, 195.0 / 255.0, 199.0 / 255.0);
+    Ray scattered;
+    Color attenuation;
+    Color emitted = record.material_pointer->emitted(record.u, record.v, record.p);
+
+    if (!record.material_pointer->scatter(r, record, attenuation, scattered))
+        return emitted;
+
+    return emitted + attenuation * ray_color(scattered, background, world, depth - 1);
 }
 
 inline void test() {
@@ -144,12 +144,14 @@ inline void test() {
 
     Point3 look_from;
     Point3 look_at;
-    auto vertical_view_field = 40.0;
-    auto aperture = 0.0;
+    float vertical_view_field = 40.0;
+    float aperture = 0.0;
+    Color background(0, 0, 0);
 
     switch (0) {
     case 1:
         world = random_scene();
+        background = Color(0.70, 0.80, 1.00);
         look_from = Point3(13, 2, 3);
         look_at = Point3(0, 0, 0);
         vertical_view_field = 20.0;
@@ -158,6 +160,7 @@ inline void test() {
 
     case 2:
         world = two_spheres();
+        background = Color(0.70, 0.80, 1.00);
         look_from = Point3(13, 2, 3);
         look_at = Point3(0, 0, 0);
         vertical_view_field = 20.0;
@@ -165,6 +168,7 @@ inline void test() {
 
     case 3:
         world = two_perlin_spheres();
+        background = Color(0.70, 0.80, 1.00);
         look_from = Point3(13, 2, 3);
         look_at = Point3(0, 0, 0);
         vertical_view_field = 20.0;
@@ -172,16 +176,21 @@ inline void test() {
 
     case 4:
         world = mars();
+        background = Color(0.70, 0.80, 1.00);
+        look_from = Point3(13, 2, 3);
+        look_at = Point3(0, 0, 0);
+        vertical_view_field = 20.0;
+        break;
+
+    case 5:
+        world = earth();
+        background = Color(0.70, 0.80, 1.00);
         look_from = Point3(13, 2, 3);
         look_at = Point3(0, 0, 0);
         vertical_view_field = 20.0;
         break;
     default:
-    case 5:
-        world = earth();
-        look_from = Point3(13, 2, 3);
-        look_at = Point3(0, 0, 0);
-        vertical_view_field = 20.0;
+        background = Color(0, 0, 0);
         break;
     }
 
@@ -205,7 +214,7 @@ inline void test() {
                 float u = (x + random_float()) / (image_width - 1);
                 float v = (y + random_float()) / (image_height - 1);
                 Ray r = camera.get_ray(u, v);
-                pixel_color += ray_color(r, world, samples_max_depth);
+                pixel_color += ray_color(r, background, world, samples_max_depth);
             }
 
             image_data[y][x] = std::move(pixel_color);
