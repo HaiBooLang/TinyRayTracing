@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "aarectangle.hpp"
+#include "box.hpp"
 #include "camera.hpp"
 #include "color.hpp"
 #include "hittable_list.hpp"
@@ -13,6 +14,7 @@
 #include "moving_sphere.hpp"
 #include "rtweekend.hpp"
 #include "sphere.hpp"
+
 
 class Material;
 
@@ -30,6 +32,9 @@ HittableList cornell_box() {
     objects.add(make_shared<XZRectangle>(0, 555, 0, 555, 0, white));
     objects.add(make_shared<XZRectangle>(0, 555, 0, 555, 555, white));
     objects.add(make_shared<XYRectangle>(0, 555, 0, 555, 555, white));
+
+    objects.add(make_shared<Box>(Point3(130, 0, 65), Point3(295, 165, 230), white));
+    objects.add(make_shared<Box>(Point3(265, 0, 295), Point3(430, 330, 460), white));
 
     return objects;
 }
@@ -165,7 +170,7 @@ inline void test() {
     float aspect_ratio = 1.0;
     constexpr int image_width = 400;
     int image_height = static_cast<int>(image_width / aspect_ratio);
-    int samples_per_pixel = 1200;
+    int samples_per_pixel = 200;
     int samples_max_depth = 50;
 
     auto image_data = new Vec3[image_height][image_width];
@@ -233,6 +238,7 @@ inline void test() {
     default:
     case 7:
         world = cornell_box();
+
         aspect_ratio = 1.0;
         background = Color(0, 0, 0);
         look_from = Point3(278, 278, -800);
@@ -250,7 +256,7 @@ inline void test() {
                   distance_to_focus, 0.0, 1.0);
 
 // Render
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(auto)
     for (int y = image_height - 1; y >= 0; --y) {
         std::cerr << "\nScanlines ramaining: " << y << ' ' << std::flush;
 
