@@ -15,7 +15,6 @@
 #include "rtweekend.hpp"
 #include "sphere.hpp"
 
-
 class Material;
 
 HittableList cornell_box() {
@@ -33,8 +32,15 @@ HittableList cornell_box() {
     objects.add(make_shared<XZRectangle>(0, 555, 0, 555, 555, white));
     objects.add(make_shared<XYRectangle>(0, 555, 0, 555, 555, white));
 
-    objects.add(make_shared<Box>(Point3(130, 0, 65), Point3(295, 165, 230), white));
-    objects.add(make_shared<Box>(Point3(265, 0, 295), Point3(430, 330, 460), white));
+    shared_ptr<Hittable> box1 = make_shared<Box>(Point3(0, 0, 0), Point3(165, 330, 165), white);
+    box1 = make_shared<RotateY>(box1, 15);
+    box1 = make_shared<translate>(box1, Vec3(265, 0, 295));
+    objects.add(box1);
+
+    shared_ptr<Hittable> box2 = make_shared<Box>(Point3(0, 0, 0), Point3(165, 165, 165), white);
+    box2 = make_shared<RotateY>(box2, -18);
+    box2 = make_shared<translate>(box2, Vec3(130, 0, 65));
+    objects.add(box2);
 
     return objects;
 }
