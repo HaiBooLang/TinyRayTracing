@@ -10,7 +10,8 @@ set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--stack=999999999")
 
 # OpemMp
 if(NOT TARGET OpenMP::OpenMP_CXX)
@@ -23,3 +24,4 @@ if(NOT TARGET OpenMP::OpenMP_CXX)
                  PROPERTY INTERFACE_LINK_LIBRARIES ${OpenMP_CXX_FLAGS} Threads::Threads)
 endif()
 target_link_libraries(tinyraytracing PUBLIC OpenMP::OpenMP_CXX)
+

@@ -1,9 +1,9 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "perlin.hpp"
-#include "rtw_stb_image.hpp"
-#include "rtweekend.hpp"
+#include "perlin.h"
+#include "rtw_stb_image.h"
+#include "rtweekend.h"
 #include <iostream>
 
 class Texture {

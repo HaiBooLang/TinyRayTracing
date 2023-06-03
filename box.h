@@ -1,10 +1,10 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include "rtweekend.hpp"
+#include "rtweekend.h"
 
-#include "aarectangle.hpp"
-#include "hittable_list.hpp"
+#include "aarectangle.h"
+#include "hittable_list.h"
 
 class Box : public Hittable {
 public:

@@ -1,11 +1,12 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include "rtweekend.hpp"
+#include "rtweekend.h"
 
 class aabb {
 public:
     aabb() {}
+
     aabb(const Point3 &a, const Point3 &b) {
         aabb_minimum = a;
         aabb_maximum = b;

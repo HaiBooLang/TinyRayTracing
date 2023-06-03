@@ -34,8 +34,8 @@ inline float clamp(float x, float min, float max) {
 
 // common headers
 
-#include "ray.hpp"
-#include "vec3.hpp"
+#include "ray.h"
+#include "vec3.h"
 
 inline int random_int(int min, int max) {
     // Returns a random integer in [min,max].

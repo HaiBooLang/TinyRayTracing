@@ -1,8 +1,8 @@
 #ifndef HittableList_H
 #define HittableList_H
 
-#include "aabb.hpp"
-#include "hittable.hpp"
+#include "aabb.h"
+#include "hittable.h"
 #include <vector>
 
 class HittableList : public Hittable {

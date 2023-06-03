@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "rtweekend.hpp"
+#include "rtweekend.h"
 
 // implements a simple camera using the axis-aligned camera
 class Camera {

@@ -1,10 +1,10 @@
 #ifndef BVH_H
 #define BVH_H
 
-#include "rtweekend.hpp"
+#include "rtweekend.h"
 
-#include "hittable.hpp"
-#include "hittable_list.hpp"
+#include "hittable.h"
+#include "hittable_list.h"
 
 class bvh_node : public Hittable {
 public:
@@ -16,7 +16,7 @@ public:
     bvh_node(const std::vector<std::shared_ptr<Hittable>> &src_objects, size_t start, size_t end,
              float time0, float time1);
 
-    virtual bool hit(const Ray &r, float t_min, float t_max, hit_record &rec) const override;
+    virtual bool hit(const Ray &r, float t_min, float t_max, HitRecord &rec) const override;
 
     virtual bool bounding_box(float time0, float time1, aabb &output_box) const override;
 
@@ -25,6 +25,7 @@ public:
     shared_ptr<Hittable> right;
     aabb box;
 };
+
 inline bool box_compare(const shared_ptr<Hittable> a, const shared_ptr<Hittable> b, int axis) {
     aabb box_a;
     aabb box_b;
@@ -83,7 +84,7 @@ inline bvh_node::bvh_node(const std::vector<shared_ptr<Hittable>> &src_objects, 
     box = surrounding_box(box_left, box_right);
 }
 
-inline bool bvh_node::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const {
+inline bool bvh_node::hit(const Ray &r, float t_min, float t_max, HitRecord &rec) const {
     if (!box.hit(r, t_min, t_max))
         return false;
 
@@ -91,6 +92,11 @@ inline bool bvh_node::hit(const Ray &r, float t_min, float t_max, hit_record &re
     bool hit_right = right->hit(r, t_min, hit_left ? rec.t : t_max, rec);
 
     return hit_left || hit_right;
+}
+
+inline bool bvh_node::bounding_box(float time0, float time1, aabb &output_box) const {
+    output_box = box;
+    return true;
 }
 
 #endif

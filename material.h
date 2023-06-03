@@ -1,9 +1,9 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "hittable.hpp"
-#include "rtweekend.hpp"
-#include "texture.hpp"
+#include "hittable.h"
+#include "rtweekend.h"
+#include "texture.h"
 #include <memory>
 
 struct HitRecord;

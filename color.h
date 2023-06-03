@@ -1,7 +1,7 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include "rtweekend.hpp"
+#include "rtweekend.h"
 #include <ostream>
 
 inline void write_color(std::ostream &image_out, Color &&pixel_color, int samples_per_pixel) {

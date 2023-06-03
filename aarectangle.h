@@ -1,10 +1,9 @@
 #ifndef AARECTANGLE_H
 #define AARECTANGLE_H
 
-#include "rtweekend.hpp"
+#include "rtweekend.h"
 
-#include "hittable.hpp"
-#include <future>
+#include "hittable.h"
 #include <memory>
 
 class XYRectangle : public Hittable {
