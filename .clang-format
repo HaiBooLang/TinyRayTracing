@@ -1,9 +1,0 @@
-BasedOnStyle: LLVM
-IndentWidth: 4
-AccessModifierOffset: -4
-ColumnLimit: 100
-# AllowAllArgumentsOnNextLine: false
-# AllowShortFunctionsOnASingleLine: None
-BinPackArguments: true
-BinPackParameters: true
-Language: Cpp

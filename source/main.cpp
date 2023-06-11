@@ -6,12 +6,13 @@
 #include "world.h"
 
 #include <Windows.h>
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <memory>
 #include <ostream>
-#include <utility>
-#include <algorithm>
+#include <thread>
+
 
 class Material;
 
@@ -141,24 +142,41 @@ inline void test() {
     Camera camera(look_from, look_at, vertical_up, vertical_view_field, aspect_ratio, aperture,
                   distance_to_focus, 0.0, 1.0);
 
-// Render
-#pragma omp parallel for schedule(auto)
-    for (int y = image_height - 1; y >= 0; --y) {
-        std::cerr << "\nScanlines ramaining: " << y << ' ' << std::flush;
+    int thread_num = 10;
 
-        for (int x = 0; x < image_width; ++x) {
-            Color pixel_color(0, 0, 0);
+    auto calculate_ray = [&](int first_row, int last_row) {
+        for (int y = last_row; y >= first_row; --y) {
+            std::cerr << "\nScanlines ramaining: " << y << ' ' << std::flush;
 
-            for (int s = 0; s < samples_per_pixel; ++s) {
-                float u = (x + random_float()) / (image_width - 1);
-                float v = (y + random_float()) / (image_height - 1);
-                Ray r = camera.get_ray(u, v);
-                pixel_color += ray_color(r, background, world, samples_max_depth);
+            for (int x = 0; x < image_width; ++x) {
+                Color pixel_color(0, 0, 0);
+
+                for (int s = 0; s < samples_per_pixel; ++s) {
+                    float u = (x + random_float()) / (image_width - 1);
+                    float v = (y + random_float()) / (image_height - 1);
+                    Ray r = camera.get_ray(u, v);
+                    pixel_color += ray_color(r, background, world, samples_max_depth);
+                }
+
+                image_data[y][x] = pixel_color;
             }
-
-            image_data[y][x] = std::move(pixel_color);
         }
-    }
+    };
+
+    std::vector<std::thread> threads;
+
+    std::thread t(calculate_ray, 0, image_height);
+
+
+     t.join();
+     
+    //for (int i = 0; i < image_height; i += image_height / thread_num) {
+    //    threads.push_back(std::thread(calculate_ray, i, i + image_height / thread_num));
+    //}
+
+    //for (auto &t : threads) {
+    //    t.join();
+    //}
 
     image_out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     for (int y = image_height - 1; y >= 0; --y) {
@@ -168,7 +186,6 @@ inline void test() {
     }
 
     std::cerr << "\nDone\n";
-
 
     image_out.close();
 }
