@@ -1,12 +1,4 @@
-#include "bvh.h"
-#include "camera.h"
-#include "color.h"
-#include "hittable_list.h"
-#include "rtweekend.h"
-#include "world.h"
-
 #include <Windows.h>
-#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <memory>
@@ -14,9 +6,25 @@
 #include <thread>
 
 
+#include "aarectangle.h"
+#include "box.h"
+#include "camera.h"
+#include "color.h"
+#include "constant_medium.h"
+#include "hittable_list.h"
+#include "material.h"
+#include "moving_sphere.h"
+#include "rtweekend.h"
+#include "sphere.h"
+#include "world.h"
+
+
 class Material;
 
-inline Color ray_color(const Ray &r, const Color &background, const Hittable &world, int depth) {
+
+// Color(189.0 / 255.0, 195.0 / 255.0, 199.0 / 255.0)
+
+Color ray_color(const Ray& r, const Color& background, const Hittable& world, int depth) {
     HitRecord record;
 
     // If we've exceeded the ray bounce limit, no more light is gathered
@@ -43,9 +51,9 @@ inline void test() {
     std::ofstream image_out("img.ppm");
 
     float aspect_ratio = 1.0;
-    constexpr int image_width = 200;
+    constexpr int image_width = 1200;
     int image_height = static_cast<int>(image_width / aspect_ratio);
-    int samples_per_pixel = 100;
+    int samples_per_pixel = 200;
     int samples_max_depth = 50;
 
     auto image_data = new Vec3[image_height][image_width];
@@ -125,6 +133,7 @@ inline void test() {
         look_at = Point3(278, 278, 0);
         vertical_view_field = 40.0;
         break;
+
     default:
     case 9:
         world = final_scene();
@@ -132,6 +141,7 @@ inline void test() {
         look_from = Point3(478, 278, -600);
         look_at = Point3(278, 278, 0);
         vertical_view_field = 40.0;
+        break;
     }
 
     // Camera
@@ -140,43 +150,41 @@ inline void test() {
     constexpr float distance_to_focus = 10.0;
 
     Camera camera(look_from, look_at, vertical_up, vertical_view_field, aspect_ratio, aperture,
-                  distance_to_focus, 0.0, 1.0);
+        distance_to_focus, 0.0, 1.0);
 
-    int thread_num = 10;
 
-    auto calculate_ray = [&](int first_row, int last_row) {
-        for (int y = last_row; y >= first_row; --y) {
-            std::cerr << "\nScanlines ramaining: " << y << ' ' << std::flush;
 
-            for (int x = 0; x < image_width; ++x) {
-                Color pixel_color(0, 0, 0);
+    int n = image_height;
 
-                for (int s = 0; s < samples_per_pixel; ++s) {
-                    float u = (x + random_float()) / (image_width - 1);
-                    float v = (y + random_float()) / (image_height - 1);
-                    Ray r = camera.get_ray(u, v);
-                    pixel_color += ray_color(r, background, world, samples_max_depth);
+    const int num_threads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads(num_threads);
+
+    for (int i = 0; i < num_threads; ++i) {
+        int start_y = i * image_height / num_threads;
+        int end_y = (i + 1) * image_height / num_threads;
+        threads[i] = std::thread([start_y, end_y, image_width, image_height, samples_per_pixel, &camera, &background, &world, samples_max_depth, &image_data,&n]() {
+            for (int y = end_y - 1; y >= start_y; --y) {
+                std::cerr << '\n' << n-- <<std::flush;
+
+                for (int x = 0; x < image_width; ++x) {
+                    Color pixel_color(0, 0, 0);
+
+                    for (int s = 0; s < samples_per_pixel; ++s) {
+                        float u = (x + random_float()) / (image_width - 1);
+                        float v = (y + random_float()) / (image_height - 1);
+                        Ray r = camera.get_ray(u, v);
+                        pixel_color += ray_color(r, background, world, samples_max_depth);
+                    }
+
+                    image_data[y][x] = std::move(pixel_color);
                 }
-
-                image_data[y][x] = pixel_color;
             }
-        }
-    };
+            });
+    }
 
-    std::vector<std::thread> threads;
-
-    std::thread t(calculate_ray, 0, image_height);
-
-
-     t.join();
-     
-    //for (int i = 0; i < image_height; i += image_height / thread_num) {
-    //    threads.push_back(std::thread(calculate_ray, i, i + image_height / thread_num));
-    //}
-
-    //for (auto &t : threads) {
-    //    t.join();
-    //}
+    for (auto& thread : threads) {
+        thread.join();
+    }
 
     image_out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     for (int y = image_height - 1; y >= 0; --y) {
@@ -186,6 +194,8 @@ inline void test() {
     }
 
     std::cerr << "\nDone\n";
+
+    delete[] image_data;
 
     image_out.close();
 }
@@ -205,7 +215,7 @@ int main() {
 
         QueryPerformanceCounter(&time_end);
         time += static_cast<float>(time_end.QuadPart - time_start.QuadPart) /
-                static_cast<float>(tc.QuadPart);
+            static_cast<float>(tc.QuadPart);
     }
 
     std::cerr << "time = " << time / static_cast<float>(max) << std::endl;
