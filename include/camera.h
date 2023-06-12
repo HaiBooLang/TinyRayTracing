@@ -28,10 +28,14 @@ public:
         lens_radius_ = aperture / 2;
         time0_ = time0;
         time1_ = time1;
+
+        viewport_height_ = viewport_height;
+        viewport_width_ = viewport_width;
+        lens_offset_ = lens_radius_ * random_in_unit_disk();
     }
+
     Ray get_ray(float s, float t) const {
-        Vec3 rd = lens_radius_ * random_in_unit_disk();
-        Vec3 offset = u * rd.x() + v * rd.y();
+        Vec3 offset = u * lens_offset_.x() + v * lens_offset_.y();
 
         return Ray(origin_ + offset,
                    lower_left_corner_ + s * horizontal_ + t * vertical_ - origin_ - offset,
@@ -45,6 +49,10 @@ private:
     Vec3 vertical_;
     Vec3 u, v, w;
     float lens_radius_;
-    float time0_, time1_; // shutter open/close times
+    float time0_, time1_;
+    
+    float viewport_height_;
+    float viewport_width_;
+    Vec3 lens_offset_;
 };
 #endif

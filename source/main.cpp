@@ -51,7 +51,7 @@ inline void test() {
 	std::ofstream image_out("img.ppm");
 
 	float aspect_ratio = 1.0;
-	constexpr int image_width = 1600;
+	constexpr int image_width = 400;
 	int image_height = static_cast<int>(image_width / aspect_ratio);
 	int samples_per_pixel = 200;
 	int samples_max_depth = 64;
@@ -154,12 +154,13 @@ inline void test() {
 
 	int n = image_height;
 
-	const int num_threads = std::thread::hardware_concurrency();
+	const int num_threads = std::thread::hardware_concurrency() - 1;
 	std::vector<std::thread> threads(num_threads);
 
 	for (int i = 0; i < num_threads; ++i) {
 		int start_y = i * image_height / num_threads;
 		int end_y = (i + 1) * image_height / num_threads;
+
 		threads[i] = std::thread([start_y, end_y, image_width, image_height, samples_per_pixel, &camera, &background, &world, samples_max_depth, &image_data, &n]() {
 			for (int y = end_y - 1; y >= start_y; --y) {
 				std::cerr << '\n' << n-- << std::flush;
